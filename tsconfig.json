@@ -6,32 +6,24 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"],
       "@components/*": ["components/*"],
       "@screens/*": ["screens/*"],
       "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"],
       "@algorithms/*": ["algorithms/*"],
-      "@types/*": ["types/*"],
+      "@hooks/*": ["hooks/*"],
+      "@store/*": ["store/*"],
+      "@styles/*": ["styles/*"],
       "@assets/*": ["assets/*"],
-      "@styles/*": ["styles/*"]
+      "@types/*": ["types/*"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "android",
-    "ios",
-    "tests"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "android", "ios"]
 }
