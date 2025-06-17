@@ -49,6 +49,7 @@ const UserInputScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{flex: 1}}>
       <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Welcome to ココロ鏡</Text>
         <Text style={styles.label}>名前</Text>
         <TextInput
           placeholder="例：花子"
@@ -159,6 +160,12 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: '#FFF6F6',
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 16,
+    color: '#8B7FD9',
+    textAlign: 'center',
   },
   label: {
     marginTop: 10,
