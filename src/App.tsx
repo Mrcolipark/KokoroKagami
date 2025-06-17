@@ -1,10 +1,11 @@
 import React from 'react';
-import {SafeAreaView, Text, StyleSheet} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
+import UserInputScreen from './screens/UserInputScreen';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Welcome to Kokoro Kagami</Text>
+      <UserInputScreen />
     </SafeAreaView>
   );
 };
