@@ -1,0 +1,124 @@
+{
+  "signs": [
+    {
+      "id": "aries",
+      "name": "牡羊座",
+      "symbol": "♈",
+      "element": "火",
+      "quality": "活動宮",
+      "dates": "3月21日〜4月19日",
+      "traits": ["情熱的", "積極的", "リーダーシップ", "衝動的"],
+      "colors": ["赤", "オレンジ"]
+    },
+    {
+      "id": "taurus", 
+      "name": "牡牛座",
+      "symbol": "♉",
+      "element": "土",
+      "quality": "固定宮",
+      "dates": "4月20日〜5月20日",
+      "traits": ["安定", "忍耐強い", "美的センス", "頑固"],
+      "colors": ["緑", "ピンク"]
+    },
+    {
+      "id": "gemini",
+      "name": "双子座", 
+      "symbol": "♊",
+      "element": "風",
+      "quality": "柔軟宮",
+      "dates": "5月21日〜6月20日",
+      "traits": ["好奇心旺盛", "コミュニケーション", "多才", "変わりやすい"],
+      "colors": ["黄色", "水色"]
+    },
+    {
+      "id": "cancer",
+      "name": "蟹座",
+      "symbol": "♋", 
+      "element": "水",
+      "quality": "活動宮",
+      "dates": "6月21日〜7月22日",
+      "traits": ["母性的", "感情豊か", "家族思い", "防御的"],
+      "colors": ["白", "銀色"]
+    },
+    {
+      "id": "leo",
+      "name": "獅子座",
+      "symbol": "♌",
+      "element": "火", 
+      "quality": "固定宮",
+      "dates": "7月23日〜8月22日",
+      "traits": ["自信", "創造的", "華やか", "プライド高い"],
+      "colors": ["金色", "オレンジ"]
+    },
+    {
+      "id": "virgo",
+      "name": "乙女座",
+      "symbol": "♍",
+      "element": "土",
+      "quality": "柔軟宮", 
+      "dates": "8月23日〜9月22日",
+      "traits": ["完璧主義", "分析的", "実用的", "批判的"],
+      "colors": ["紺色", "グレー"]
+    },
+    {
+      "id": "libra",
+      "name": "天秤座",
+      "symbol": "♎",
+      "element": "風",
+      "quality": "活動宮",
+      "dates": "9月23日〜10月22日", 
+      "traits": ["バランス", "美的センス", "協調性", "優柔不断"],
+      "colors": ["青", "ピンク"]
+    },
+    {
+      "id": "scorpio",
+      "name": "蠍座",
+      "symbol": "♏",
+      "element": "水",
+      "quality": "固定宮",
+      "dates": "10月23日〜11月21日",
+      "traits": ["情熱的", "神秘的", "集中力", "嫉妬深い"],
+      "colors": ["深紅", "黒"]
+    },
+    {
+      "id": "sagittarius",
+      "name": "射手座", 
+      "symbol": "♐",
+      "element": "火",
+      "quality": "柔軟宮",
+      "dates": "11月22日〜12月21日",
+      "traits": ["自由", "楽観的", "冒険", "無責任"],
+      "colors": ["紫", "青"]
+    },
+    {
+      "id": "capricorn",
+      "name": "山羊座",
+      "symbol": "♑",
+      "element": "土",
+      "quality": "活動宮",
+      "dates": "12月22日〜1月19日",
+      "traits": ["責任感", "野心的", "現実的", "保守的"],
+      "colors": ["茶色", "黒"]
+    },
+    {
+      "id": "aquarius",
+      "name": "水瓶座",
+      "symbol": "♒", 
+      "element": "風",
+      "quality": "固定宮",
+      "dates": "1月20日〜2月18日",
+      "traits": ["独立性", "革新的", "人道的", "変わり者"],
+      "colors": ["水色", "電気ブルー"]
+    },
+    {
+      "id": "pisces",
+      "name": "魚座",
+      "symbol": "♓",
+      "element": "水", 
+      "quality": "柔軟宮",
+      "dates": "2月19日〜3月20日",
+      "traits": ["感受性", "直感的", "同情心", "現実逃避"],
+      "colors": ["海の緑", "薄紫"]
+    }
+  ]
+}
