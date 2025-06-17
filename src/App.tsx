@@ -1,20 +1,16 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {Provider} from 'react-redux';
-import {store} from './store';
-import AppNavigator from './navigation/AppNavigator';
-import {ThemeProvider} from './styles/theme';
+import {SafeAreaView, Text, StyleSheet} from 'react-native';
 
-const App: React.FC = () => {
+const App = () => {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-      </ThemeProvider>
-    </Provider>
+    <SafeAreaView style={styles.container}>
+      <Text>Welcome to Kokoro Kagami</Text>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+});
 
 export default App;
