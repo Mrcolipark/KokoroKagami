@@ -2,155 +2,255 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
+  StatusBar,
   TouchableOpacity,
+  Image,
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import GenderSelector, { Gender } from '../components/GenderSelector';
+import GenderSelector from '../components/GenderSelector';
 import DateTimePicker from '../components/DateTimePicker';
 import AddressPicker from '../components/AddressPicker';
 
-const UserInputScreen = () => {
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState<Gender>('');
-  const [birthDate, setBirthDate] = useState(new Date());
-  const [birthPlace, setBirthPlace] = useState({ prefecture: '', city: '', town: '' });
-  const [residence, setResidence] = useState({ prefecture: '', city: '', town: '' });
+export default function UserInputScreen() {
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
+  const [birthPlace, setBirthPlace] = useState<string>('');
+  const [currentLocation, setCurrentLocation] = useState<string>('');
 
-  const isValid =
-    name &&
-    gender &&
-    birthPlace.prefecture &&
-    birthPlace.city &&
-    birthPlace.town;
-
-  const handleNext = () => {
-    console.log({ name, gender, birthDate, birthPlace, residence });
+  const handleContinue = () => {
+    if (selectedGender && birthDate && birthPlace && currentLocation) {
+      console.log('Form data:', {
+        gender: selectedGender,
+        birthDate,
+        birthPlace,
+        currentLocation,
+      });
+      // Navigate to next screen or process data
+    }
   };
 
+  const isFormValid = selectedGender && birthDate && birthPlace && currentLocation;
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <LinearGradient
-          colors={['#B2EBF2', '#80DEEA']}
-          style={styles.header}
-        >
-          <View style={styles.headerTextWrapper}>
-            <Text style={styles.title}>プロフィールを入力して、運命を見てみよう</Text>
-            <Text style={styles.subtitle}>
-              星座や四柱推命から、あなただけの物語が始まります
-            </Text>
-          </View>
-          <Image source={require('../assets/mascot.png')} style={styles.mascot} />
-        </LinearGradient>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header with gradient */}
+      <LinearGradient
+        colors={['#FFB6C1', '#FF69B4', '#DA70D6', '#DDA0DD']}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.headerContent}>
+          <Text style={styles.appName}>✨ ココロ鏡</Text>
+          <TouchableOpacity style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.titleSection}>
+          <Text style={styles.title}>プロフィールを入力して、運命を覗いてみよう</Text>
+          <Text style={styles.subtitle}>あなただけの星と、ココロが響き合う♡</Text>
+          <Text style={styles.description}>
+            生年月日や出生地から、あなたの本質を占います
+          </Text>
+          
+          <Image
+            source={require('../assets/mascot.png')}
+            style={styles.mascot}
+            resizeMode="contain"
+          />
+        </View>
+      </LinearGradient>
 
-        <Text style={styles.label}>お名前</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="例：花子"
-          value={name}
-          onChangeText={setName}
+      {/* Form Content */}
+      <View style={styles.formContainer}>
+        {/* Gender Selection */}
+        <GenderSelector
+          selectedGender={selectedGender}
+          onGenderChange={setSelectedGender}
         />
 
-        <GenderSelector value={gender} onChange={setGender} />
+        {/* Birth Date */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>🎂 お誕生日</Text>
+          <DateTimePicker
+            value={birthDate}
+            onChange={setBirthDate}
+            placeholder="選択してください"
+          />
+        </View>
 
-        <DateTimePicker value={birthDate} onChange={setBirthDate} />
+        {/* Birth Place */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>🏠 出身地</Text>
+          <AddressPicker
+            value={birthPlace}
+            onChange={setBirthPlace}
+            placeholder="選択してください"
+          />
+        </View>
 
-        <AddressPicker
-          label="出生地"
-          value={birthPlace}
-          onChange={setBirthPlace}
-        />
+        {/* Current Location */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>📍 現在地</Text>
+          <AddressPicker
+            value={currentLocation}
+            onChange={setCurrentLocation}
+            placeholder="選択してください"
+          />
+        </View>
 
-        <AddressPicker
-          label="現在の居住地（任意）"
-          value={residence}
-          onChange={setResidence}
-          optional
-        />
-
+        {/* Continue Button */}
         <TouchableOpacity
-          style={[styles.nextButton, !isValid && styles.nextButtonDisabled]}
-          disabled={!isValid}
-          onPress={handleNext}
+          style={[
+            styles.continueButton,
+            isFormValid && styles.continueButtonActive,
+          ]}
+          onPress={handleContinue}
+          disabled={!isFormValid}
         >
-          <Text style={styles.nextButtonText}>→</Text>
+          <Text style={styles.continueButtonText}>✨</Text>
         </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#FFF',
+    flex: 1,
+    backgroundColor: '#FFF8F8',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
+    paddingTop: 20,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#FF69B4',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
   },
-  headerTextWrapper: {
-    flex: 1,
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  appName: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  titleSection: {
+    paddingHorizontal: 20,
+    position: 'relative',
   },
   title: {
-    color: '#fff',
-    fontSize: 18,
+    color: 'white',
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   subtitle: {
-    color: '#fff',
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  description: {
+    color: 'rgba(255, 255, 255, 0.95)',
     fontSize: 14,
+    marginBottom: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   mascot: {
-    width: 60,
-    height: 60,
-    marginLeft: 8,
-    resizeMode: 'contain',
+    position: 'absolute',
+    right: 20,
+    top: -10,
+    width: 80,
+    height: 80,
   },
-  label: {
+  formContainer: {
+    flex: 1,
+    backgroundColor: '#FFF8F8',
+    paddingHorizontal: 20,
+    paddingTop: 30,
+  },
+  fieldContainer: {
+    marginBottom: 25,
+  },
+  fieldLabel: {
     fontSize: 16,
-    color: '#555',
-    marginBottom: 4,
-    marginTop: 12,
+    fontWeight: '600',
+    color: '#8B4A8B',
+    marginBottom: 12,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 8,
-    backgroundColor: '#fff',
-  },
-  nextButton: {
-    alignSelf: 'center',
-    marginVertical: 24,
-    backgroundColor: '#7B1FA2',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
+  continueButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: 20,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    backgroundColor: '#E6E6FA',
     justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: '#FF69B4',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 2,
+    borderColor: '#F0E6FF',
   },
-  nextButtonDisabled: {
-    backgroundColor: '#ccc',
+  continueButtonActive: {
+    backgroundColor: '#FF69B4',
+    borderColor: '#FF1493',
+    shadowColor: '#FF1493',
+    shadowOpacity: 0.5,
   },
-  nextButtonText: {
-    color: '#fff',
-    fontSize: 32,
-    lineHeight: 32,
+  continueButtonText: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: 'bold',
   },
 });
-
-export default UserInputScreen;

@@ -1,31 +1,119 @@
-export interface AddressTown {
-  town: string;
-}
-
-export interface AddressCity {
-  city: string;
-  towns: string[];
-}
-
-export interface AddressPrefecture {
-  prefecture: string;
-  cities: AddressCity[];
-}
-
-// Mock data simulating Japanese address hierarchy
-export const addressData: AddressPrefecture[] = [
-  {
-    prefecture: '東京都',
-    cities: [
-      {city: '新宿区', towns: ['西新宿', '新宿', '歌舞伎町']},
-      {city: '渋谷区', towns: ['渋谷', '恵比寿', '代々木']},
+// Japanese address data structure: Prefecture -> City -> Ward/District
+export const addressData: Record<string, Record<string, string[]>> = {
+  'Tokyo': {
+    'Tokyo': [
+      'Chiyoda Ward',
+      'Chuo Ward',
+      'Minato Ward',
+      'Shinjuku Ward',
+      'Bunkyo Ward',
+      'Taito Ward',
+      'Sumida Ward',
+      'Koto Ward',
+      'Shinagawa Ward',
+      'Meguro Ward',
+      'Ota Ward',
+      'Setagaya Ward',
+      'Shibuya Ward',
+      'Nakano Ward',
+      'Suginami Ward',
+      'Toshima Ward',
+      'Kita Ward',
+      'Arakawa Ward',
+      'Itabashi Ward',
+      'Nerima Ward',
+      'Adachi Ward',
+      'Katsushika Ward',
+      'Edogawa Ward',
     ],
   },
-  {
-    prefecture: '大阪府',
-    cities: [
-      {city: '大阪市北区', towns: ['梅田', '天神橋', '中之島']},
-      {city: '大阪市中央区', towns: ['本町', '心斎橋', '道頓堀']},
+  'Tianjin': {
+    'Tianjin': [
+      'Heping District',
+      'Hedong District',
+      'Hexi District',
+      'Nankai District',
+      'Hebei District',
+      'Hongqiao District',
     ],
   },
-];
+  'Hebei Province': {
+    'Shijiazhuang': [
+      'Chang\'an District',
+      'Qiaoxi District',
+      'Xinhua District',
+      'Jingxing District',
+      'Yuhua District',
+    ],
+    'Tangshan': [
+      'Lubei District',
+      'Lunan District',
+      'Guye District',
+      'Kaiping District',
+    ],
+    'Qinhuangdao': [
+      'Haigang District',
+      'Shanhaiguan District',
+      'Beidaihe District',
+    ],
+  },
+  'Shanxi Province': {
+    'Taiyuan': [
+      'Xinghualing District',
+      'Yingze District',
+      'Xiaodian District',
+      'Jiancaoping District',
+    ],
+    'Datong': [
+      'Pingcheng District',
+      'Yungang District',
+      'Xinrong District',
+      'Yunzhou District',
+    ],
+  },
+  'Osaka Prefecture': {
+    'Osaka': [
+      'Chuo Ward',
+      'Kita Ward',
+      'Nishi Ward',
+      'Minami Ward',
+      'Higashi Ward',
+      'Sumiyoshi Ward',
+      'Naniwa Ward',
+      'Yodogawa Ward',
+    ],
+    'Sakai': [
+      'Sakai Ward',
+      'Naka Ward',
+      'Higashi Ward',
+      'Nishi Ward',
+      'Minami Ward',
+    ],
+  },
+  'Kanagawa Prefecture': {
+    'Yokohama': [
+      'Nishi Ward',
+      'Minami Ward',
+      'Koganecho Ward',
+      'Hodogaya Ward',
+      'Asahi Ward',
+      'Isogo Ward',
+    ],
+    'Kawasaki': [
+      'Kawasaki Ward',
+      'Saiwai Ward',
+      'Nakahara Ward',
+      'Takatsu Ward',
+    ],
+  },
+  'Kyoto Prefecture': {
+    'Kyoto': [
+      'Kita Ward',
+      'Kamigyo Ward',
+      'Nakagyo Ward',
+      'Shimogyo Ward',
+      'Higashiyama Ward',
+      'Yamashina Ward',
+    ],
+  },
+};

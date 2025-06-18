@@ -1,111 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Picker as RNPicker, Switch } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-interface Props {
-  value: Date;
+interface DateTimePickerProps {
+  value: Date | null;
   onChange: (date: Date) => void;
+  placeholder: string;
 }
 
-const years = Array.from({ length: 121 }, (_, i) => 1900 + i);
-const months = Array.from({ length: 12 }, (_, i) => i + 1);
-const hours = Array.from({ length: 24 }, (_, i) => i);
-const minutes = Array.from({ length: 60 }, (_, i) => i);
+export default function DateTimePicker({ value, onChange, placeholder }: DateTimePickerProps) {
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-const toWareki = (y: number) => {
-  if (y >= 2019) return `令和${y - 2018}年`;
-  if (y >= 1989) return `平成${y - 1988}年`;
-  if (y >= 1926) return `昭和${y - 1925}年`;
-  return `${y}年`;
-};
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
 
-const DateTimePicker: React.FC<Props> = ({ value, onChange }) => {
-  const [year, setYear] = useState(value.getFullYear());
-  const [month, setMonth] = useState(value.getMonth() + 1);
-  const [day, setDay] = useState(value.getDate());
-  const [hour, setHour] = useState(value.getHours());
-  const [minute, setMinute] = useState(value.getMinutes());
-  const [wareki, setWareki] = useState(false);
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
 
-  useEffect(() => {
-    const daysInMonth = new Date(year, month, 0).getDate();
-    if (day > daysInMonth) setDay(daysInMonth);
-    const newDate = new Date(year, month - 1, day, hour, minute);
-    onChange(newDate);
-  }, [year, month, day, hour, minute]);
+  const handleConfirm = (date: Date) => {
+    onChange(date);
+    hideDatePicker();
+  };
 
-  const days = Array.from({ length: new Date(year, month, 0).getDate() }, (_, i) => i + 1);
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
-    <View>
-      <View style={styles.warekiRow}>
-        <Text style={styles.warekiLabel}>西暦</Text>
-        <Switch value={wareki} onValueChange={setWareki} />
-        <Text style={styles.warekiLabel}>和暦</Text>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.column}>
-          <Picker selectedValue={year} onValueChange={setYear}>
-            {years.map((y) => (
-              <Picker.Item
-                key={y}
-                label={wareki ? toWareki(y) : `${y}年`}
-                value={y}
-              />
-            ))}
-          </Picker>
-        </View>
-        <View style={styles.column}>
-          <Picker selectedValue={month} onValueChange={setMonth}>
-            {months.map((m) => (
-              <Picker.Item key={m} label={`${m}月`} value={m} />
-            ))}
-          </Picker>
-        </View>
-        <View style={styles.column}>
-          <Picker selectedValue={day} onValueChange={setDay}>
-            {days.map((d) => (
-              <Picker.Item key={d} label={`${d}日`} value={d} />
-            ))}
-          </Picker>
-        </View>
-        <View style={styles.column}>
-          <Picker selectedValue={hour} onValueChange={setHour}>
-            {hours.map((h) => (
-              <Picker.Item key={h} label={`${h}時`} value={h} />
-            ))}
-          </Picker>
-        </View>
-        <View style={styles.column}>
-          <Picker selectedValue={minute} onValueChange={setMinute}>
-            {minutes.map((m) => (
-              <Picker.Item key={m} label={`${m}分`} value={m} />
-            ))}
-          </Picker>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.pickerButton} onPress={showDatePicker}>
+        <Text style={[styles.pickerText, !value && styles.placeholder]}>
+          {value ? formatDate(value) : placeholder}
+        </Text>
+        <Text style={styles.dropdownIcon}>💗</Text>
+      </TouchableOpacity>
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        maximumDate={new Date()}
+        minimumDate={new Date(1900, 0, 1)}
+      />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  row: {
+  container: {
+    marginBottom: 10,
+  },
+  pickerButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#FFE4E6',
+    minHeight: 55,
+    shadowColor: '#FF69B4',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  column: {
+  pickerText: {
+    fontSize: 16,
+    color: '#8B4A8B',
     flex: 1,
   },
-  warekiRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+  placeholder: {
+    color: '#DDA0DD',
   },
-  warekiLabel: {
-    marginHorizontal: 8,
-    fontSize: 14,
+  dropdownIcon: {
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
-
-export default DateTimePicker;

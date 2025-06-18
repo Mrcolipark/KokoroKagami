@@ -1,68 +1,111 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export type Gender = 'male' | 'female' | '';
-
-interface Props {
-  value: Gender;
-  onChange: (gender: Gender) => void;
+interface GenderSelectorProps {
+  selectedGender: 'male' | 'female' | null;
+  onGenderChange: (gender: 'male' | 'female') => void;
 }
 
-const GenderSelector: React.FC<Props> = ({ value, onChange }) => {
-  const renderButton = (gender: Gender, label: string, icon: string) => {
-    const selected = value === gender;
-    return (
-      <TouchableOpacity
-        style={[styles.button, selected && styles.buttonSelected]}
-        onPress={() => onChange(gender)}
-      >
-        <FontAwesome
-          name={icon as any}
-          size={24}
-          color={selected ? '#fff' : '#777'}
-        />
-        <Text style={[styles.text, selected && styles.textSelected]}>{label}</Text>
-      </TouchableOpacity>
-    );
-  };
-
+export default function GenderSelector({ selectedGender, onGenderChange }: GenderSelectorProps) {
   return (
     <View style={styles.container}>
-      {renderButton('female', '女性', 'venus')}
-      {renderButton('male', '男性', 'mars')}
+      <View style={styles.genderRow}>
+        <TouchableOpacity
+          style={[
+            styles.genderButton,
+            styles.femaleButton,
+            selectedGender === 'female' && styles.selectedFemaleButton,
+          ]}
+          onPress={() => onGenderChange('female')}
+        >
+          <Text style={[
+            styles.genderSymbol,
+            selectedGender === 'female' && styles.selectedFemaleText
+          ]}>♀</Text>
+          <Text style={[
+            styles.genderText,
+            selectedGender === 'female' && styles.selectedFemaleText
+          ]}>女性</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.genderButton,
+            styles.maleButton,
+            selectedGender === 'male' && styles.selectedMaleButton,
+          ]}
+          onPress={() => onGenderChange('male')}
+        >
+          <Text style={[styles.genderSymbol, selectedGender === 'male' && styles.selectedText]}>♂</Text>
+          <Text style={[styles.genderText, selectedGender === 'male' && styles.selectedText]}>男性</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 16,
+    marginBottom: 25,
   },
-  button: {
+  genderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+  },
+  genderButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  buttonSelected: {
-    backgroundColor: '#D46EF0',
-    borderColor: '#D46EF0',
+  femaleButton: {
+    // Default styling for female button
   },
-  text: {
-    marginLeft: 8,
-    color: '#777',
+  maleButton: {
+    // Default styling for male button
+  },
+  selectedFemaleButton: {
+    backgroundColor: '#FFB6C1',
+    borderColor: '#FF69B4',
+    shadowColor: '#FF69B4',
+    shadowOpacity: 0.3,
+  },
+  selectedMaleButton: {
+    backgroundColor: '#87CEEB',
+    borderColor: '#4682B4',
+    shadowColor: '#4682B4',
+    shadowOpacity: 0.3,
+  },
+  genderSymbol: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#666',
+    marginRight: 8,
+  },
+  genderText: {
     fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
   },
-  textSelected: {
-    color: '#fff',
+  selectedFemaleText: {
+    color: '#8B008B',
+  },
+  selectedText: {
+    color: 'white',
   },
 });
-
-export default GenderSelector;
