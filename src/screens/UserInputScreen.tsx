@@ -104,7 +104,7 @@ export default function UserInputScreen() {
       
       {/* 渐变背景 */}
       <LinearGradient
-        colors={['#4ECDC4', '#44A08D']}
+        colors={['#a8edea', '#fed6e3']}
         style={styles.backgroundGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
