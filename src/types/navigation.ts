@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UserInputScreen from './screens/UserInputScreen';
 import HomeScreen from './screens/HomeScreen';
 
-// 类型定义直接在这里
 export type RootStackParamList = {
   UserInput: undefined;
   Home: {
@@ -25,16 +24,24 @@ export default function App() {
       <Stack.Navigator
         initialRouteName="UserInput"
         screenOptions={{
-          headerShown: false,
+          headerShown: false, // 隐藏默认导航栏
+          gestureEnabled: true,
+          animation: 'slide_from_right',
         }}
       >
         <Stack.Screen 
           name="UserInput" 
           component={UserInputScreen}
+          options={{
+            title: 'プロフィール入力',
+          }}
         />
         <Stack.Screen 
           name="Home" 
           component={HomeScreen}
+          options={{
+            title: 'ホーム',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
