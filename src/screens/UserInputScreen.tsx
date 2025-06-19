@@ -110,8 +110,11 @@ export default function UserInputScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      {/* 关闭按钮 */}
-      <TouchableOpacity style={styles.closeButton}>
+      {/* 关闭按钮 - 返回登录页面 */}
+      <TouchableOpacity 
+        style={styles.closeButton}
+        onPress={() => (navigation as any).navigate('Login')}
+      >
         <Ionicons name="close" size={24} color="white" />
       </TouchableOpacity>
 
@@ -262,7 +265,7 @@ export default function UserInputScreen() {
             </TouchableOpacity>
           </View>
           
-          <View style={styles.datePickerContainer}>
+          <View style={styles.compactDatePickerContainer}>
             <DateTimePicker
               value={birthDate || new Date()}
               mode="date"
@@ -405,10 +408,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  compactModalContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
   backgroundGradient: {
     position: 'absolute',
     left: 0,
@@ -547,17 +546,24 @@ const styles = StyleSheet.create({
   continueButtonActive: {
     backgroundColor: '#FF69B4', // 默认粉色，会被内联样式覆盖
   },
-  // 日期选择模态框相关样式
+  // 紧凑的日期选择模态框样式
+  compactModalContainer: {
+    backgroundColor: '#F5F5F5',
+    height: 320, // 固定高度，更紧凑
+  },
   modalHeaderTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
-  datePickerContainer: {
-    flex: 1,
+  compactDatePickerContainer: {
+    height: 200, // 限制picker的高度
     justifyContent: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    borderRadius: 12,
+    paddingVertical: 10,
   },
   // 模态框样式
   modalContainer: {
