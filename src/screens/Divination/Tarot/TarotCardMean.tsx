@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function DivinationScreen({ navigation }: any) {
+export default function TarotCardMean({ navigation }: any) {
   return (
     <LinearGradient colors={['#a8edea', '#fed6e3']} style={styles.container}>
-      <Text style={styles.title}>これは占い機能一覧画面です</Text>
+      <Text style={styles.title}>これはカード意味画面です</Text>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeTabs')}>
         <Text style={styles.buttonText}>下一页へ</Text>
       </TouchableOpacity>
