@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export default function BaziLuckFlow({ navigation }: any) {
   return (
-    <LinearGradient colors={['#a8edea', '#fed6e3']} style={styles.container}>
+    <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
       <Text style={styles.title}>これは大運流年画面です</Text>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeTabs')}>
         <Text style={styles.buttonText}>下一页へ</Text>

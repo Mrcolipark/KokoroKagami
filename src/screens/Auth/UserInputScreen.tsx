@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { addressData } from '../assets/addressData';
+import { addressData } from '../../assets/addressData';
 
 const { width, height } = Dimensions.get('window');
 
@@ -107,7 +107,7 @@ export default function UserInputScreen() {
       
       {/* 渐变背景 */}
       <LinearGradient
-        colors={['#a8edea', '#fed6e3']}
+        colors={['#667eea', '#764ba2']}
         style={styles.backgroundGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
