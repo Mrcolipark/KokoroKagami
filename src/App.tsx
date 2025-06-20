@@ -7,6 +7,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import WelcomeScreen from './screens/Auth/WelcomeScreen';
 import LoginScreen from './screens/Auth/LoginScreen';
 import UserInputScreen from './screens/Auth/UserInputScreen';
+import HoroscopeScreen from './screens/Divination/Horoscope/HoroscopeScreen';
+import DailyFortuneScreen from './screens/Divination/Horoscope/DailyFortuneScreen';
+import HoroscopeDetailScreen from './screens/Divination/Horoscope/HoroscopeDetailScreen';
 
 // 主要功能页面 - 实际存在的组件
 import HomeScreen from './screens/Main/HomeScreen';
@@ -159,10 +162,10 @@ function App() {
         <Stack.Screen name="MyPage" component={PlaceholderScreen} />
         
         {/* 星座占い流程 */}
-        <Stack.Screen name="HoroscopeHome" component={PlaceholderScreen} />
-        <Stack.Screen name="HoroscopeResult" component={PlaceholderScreen} />
-        <Stack.Screen name="HoroscopeDetail" component={PlaceholderScreen} />
-        
+        <Stack.Screen name="HoroscopeHome" component={HoroscopeScreen} />
+        <Stack.Screen name="HoroscopeResult" component={DailyFortuneScreen} />
+        <Stack.Screen name="HoroscopeDetail" component={HoroscopeDetailScreen} />
+
         {/* 星盤占い流程 */}
         <Stack.Screen name="NatalChartInput" component={PlaceholderScreen} />
         <Stack.Screen name="NatalChartGraph" component={PlaceholderScreen} />

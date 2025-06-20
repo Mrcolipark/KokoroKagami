@@ -22,7 +22,14 @@ type RootStackParamList = {
   UserInput: undefined;
   Home: undefined;
   MyPage: undefined;
-  HoroscopeHome: undefined;
+  HoroscopeHome: { userInfo?: {
+    name: string;
+    gender: 'male' | 'female';
+    birthDate: Date;
+    birthTime: Date;
+    birthPlace: string;
+    currentLocation: string;
+  } } | undefined;
   NatalChartInput: undefined;
   BaziInput: undefined;
   TarotSelect: undefined;
@@ -92,11 +99,12 @@ const HomeScreen: React.FC = () => {
   }, [userInfo]);
 
   // 五个占卜功能按钮点击处理 - 导航到对应页面
-  const handleFeaturePress = (feature: string) => {
-    switch (feature) {
-      case 'horoscope':
-        navigation.navigate('HoroscopeHome');
-        break;
+const handleFeaturePress = (feature: string) => {
+  switch (feature) {
+    case 'horoscope':
+      // 直接传递用户信息到星座页面
+      navigation.navigate('HoroscopeHome', { userInfo });
+      break;
       case 'astrology':
         navigation.navigate('NatalChartInput');
         break;
