@@ -6,7 +6,7 @@ export default function HoroscopeHome({ navigation }: any) {
   return (
     <LinearGradient colors={['#a8edea', '#fed6e3']} style={styles.container}>
       <Text style={styles.title}>これは星座占いトップ画面です</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeTabs')}>
         <Text style={styles.buttonText}>下一页へ</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

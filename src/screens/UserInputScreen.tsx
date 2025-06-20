@@ -92,7 +92,10 @@ export default function UserInputScreen() {
       };
       
       console.log('Form data:', userInfo);
-      (navigation as any).navigate('Home', { userInfo });
+      (navigation as any).navigate('HomeTabs', {
+        screen: 'HomeTab',
+        params: { userInfo },
+      });
     }
   };
 
