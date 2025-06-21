@@ -10,6 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import { addressData } from '../assets/addressData';
+import { TEXT_STYLES, getFontFamily } from '../styles/fonts';
 
 interface AddressPickerProps {
   value: string;
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   pickerText: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#8B4A8B',
     flex: 1,
   },
@@ -244,8 +245,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...TEXT_STYLES.h4,
     color: '#8B4A8B',
   },
   closeButton: {
@@ -257,6 +257,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
+    ...TEXT_STYLES.h4,
     fontSize: 18,
     color: '#8B4A8B',
   },

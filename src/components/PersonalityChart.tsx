@@ -6,6 +6,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { PersonalityDimensions } from '../utils/ZodiacCalculator';
 
 const { width } = Dimensions.get('window');
@@ -21,7 +22,7 @@ interface ChartData {
   labelEn: string;
   value: number;
   color: string;
-  gradientColors: string[];
+  gradientColors: [string, string, string];
 }
 
 const PersonalityChart: React.FC<PersonalityChartProps> = ({
@@ -44,28 +45,28 @@ const PersonalityChart: React.FC<PersonalityChartProps> = ({
       labelEn: 'love',
       value: dimensions.love,
       color: '#FF6B9D',
-      gradientColors: ['#FF6B9D', '#FF8FA3']
+      gradientColors: ['#FF8CC8', '#FF6B9D', '#FF4A7D']
     },
     {
       label: '仕事',
       labelEn: 'career', 
       value: dimensions.career,
       color: '#4ECDC4',
-      gradientColors: ['#4ECDC4', '#7FDBDA']
+      gradientColors: ['#7FE7E0', '#4ECDC4', '#2DB5AB']
     },
     {
       label: '金運',
       labelEn: 'wealth',
       value: dimensions.wealth,
-      color: '#FFE66D',
-      gradientColors: ['#FFE66D', '#FFEC8C']
+      color: '#FFD93D',
+      gradientColors: ['#FFE66D', '#FFD93D', '#FFC107']
     },
     {
       label: '人間関係',
       labelEn: 'interpersonal',
       value: dimensions.interpersonal,
       color: '#95E1D3',
-      gradientColors: ['#95E1D3', '#B5EAE0']
+      gradientColors: ['#B5F4E8', '#95E1D3', '#6DCEB7']
     }
   ];
 
@@ -109,47 +110,60 @@ const PersonalityChart: React.FC<PersonalityChartProps> = ({
 
   const renderPyramidItem = (item: ChartData, index: number) => {
     const animatedValue = animatedValues[item.labelEn as keyof typeof animatedValues];
+    const maxHeight = 120;
+    const minHeight = 20;
     
     return (
       <View key={item.labelEn} style={styles.pyramidItem}>
-        <Animated.View
-          style={[
-            styles.pyramid,
-            {
-              backgroundColor: item.color,
-              height: animatedValue.interpolate({
-                inputRange: [0, 100],
-                outputRange: [40, 140],
-                extrapolate: 'clamp',
-              }),
-              shadowColor: item.color,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.4,
-              shadowRadius: 8,
-              elevation: 8,
-            }
-          ]}
-        >
-          {/* 光る効果のための内側のグラデーション */}
-          <View style={[styles.pyramidInner, { backgroundColor: item.gradientColors[1] }]} />
+        <View style={styles.barContainer}>
+          <Animated.View
+            style={[
+              styles.barBackground,
+              {
+                height: animatedValue.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [minHeight, maxHeight],
+                  extrapolate: 'clamp',
+                }),
+              }
+            ]}
+          >
+            <LinearGradient
+              colors={item.gradientColors}
+              start={{ x: 0, y: 1 }}
+              end={{ x: 0, y: 0 }}
+              style={styles.barGradient}
+            >
+              {/* 数値表示 - 中央に配置 */}
+              <Animated.Text style={styles.barValue}>
+                {animatedValue.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [0, item.value],
+                  extrapolate: 'clamp',
+                }).interpolate({
+                  inputRange: [0, item.value],
+                  outputRange: ['0', `${Math.round(item.value)}`],
+                })}
+              </Animated.Text>
+            </LinearGradient>
+          </Animated.View>
           
-          {/* 星アイコン */}
-          <View style={styles.pyramidIconContainer}>
-            <Text style={styles.pyramidIcon}>⭐</Text>
-          </View>
-          
-          {/* パーセンテージ表示 */}
-          <Animated.Text style={styles.pyramidValue}>
-            {animatedValue.interpolate({
-              inputRange: [0, 100],
-              outputRange: [0, Math.round(item.value)], // 确保输出范围是整数
-              extrapolate: 'clamp',
-            }).interpolate({
-              inputRange: [0, Math.round(item.value)],
-              outputRange: ['0', Math.round(item.value).toString()],
-            })}
-          </Animated.Text>
-        </Animated.View>
+          {/* 影效果 */}
+          <Animated.View
+            style={[
+              styles.barShadow,
+              {
+                height: animatedValue.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [minHeight * 0.3, maxHeight * 0.3],
+                  extrapolate: 'clamp',
+                }),
+                backgroundColor: item.color,
+                opacity: 0.2,
+              }
+            ]}
+          />
+        </View>
         
         <Text style={styles.pyramidLabel}>{item.label}</Text>
       </View>
@@ -160,76 +174,92 @@ const PersonalityChart: React.FC<PersonalityChartProps> = ({
     const getCharacteristics = () => {
       const tags = [];
       
-      if (dimensions.love > 80) tags.push('魅力約系派');
-      else if (dimensions.love < 40) tags.push('恋愛慎重派');
+      if (dimensions.love > 80) tags.push({ text: '魅力的', emoji: '💕' });
+      else if (dimensions.love < 40) tags.push({ text: '恋愛慎重派', emoji: '🌸' });
       
-      if (dimensions.career > 80) tags.push('努力就暴富');
-      else if (dimensions.career < 40) tags.push('天真無邪');
+      if (dimensions.career > 80) tags.push({ text: '仕事熱心', emoji: '💼' });
+      else if (dimensions.career < 40) tags.push({ text: 'マイペース', emoji: '☕' });
       
-      if (dimensions.wealth > 80) tags.push('控場社牛');
-      else if (dimensions.wealth < 40) tags.push('得天独厚');
+      if (dimensions.wealth > 80) tags.push({ text: '金運強い', emoji: '💰' });
+      else if (dimensions.wealth < 40) tags.push({ text: '無欲', emoji: '🌿' });
       
-      if (dimensions.interpersonal > 80) tags.push('理想主義者');
+      if (dimensions.interpersonal > 80) tags.push({ text: '社交的', emoji: '🎉' });
+      else if (dimensions.interpersonal < 40) tags.push({ text: '内向的', emoji: '📚' });
       
-      return tags.slice(0, 4); // 最大4つ
+      return tags.slice(0, 6); // 最大6つ
     };
 
     const characteristics = getCharacteristics();
+    const tagColors = ['#FF6B9D', '#4ECDC4', '#FFD93D', '#95E1D3', '#B19CD9', '#FFA07A'];
     
     return (
-      <View style={styles.characteristicTags}>
-        {characteristics.map((tag, index) => (
-          <View key={index} style={[styles.tag, { backgroundColor: chartData[index]?.color }]}>
-            <Text style={styles.tagText}>{tag}</Text>
-          </View>
-        ))}
+      <View style={styles.characteristicSection}>
+        <Text style={styles.characteristicTitle}>あなたの特徴</Text>
+        <View style={styles.characteristicGrid}>
+          {characteristics.map((tag, index) => (
+            <View key={index} style={styles.tagCard}>
+              <Text style={styles.tagEmoji}>{tag.emoji}</Text>
+              <View style={[styles.tagPill, { backgroundColor: tagColors[index % tagColors.length] }]}>
+                <Text style={styles.tagText}>{tag.text}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* ヘッダー */}
-      <View style={styles.header}>
-        <Text style={styles.title}>低調有実力</Text>
-      <View style={styles.rarityContainer}>
-        <Text style={styles.rarityPrefix}>わずか </Text>
-        <Text style={styles.rarityValue}>
-          {rarity.toFixed(1)} {/* 🔧 直接显示1位小数，不用动画 */}
-        </Text>
-        <Text style={styles.raritySuffix}>%の人がこの星座配置を持っています。</Text>
-      </View>
-        <Text style={styles.description}>
-          あなたは確実に伝説中の者です。
-        </Text>
-      </View>
+      {/* メインカード */}
+      <View style={styles.mainCard}>
+        {/* ヘッダー */}
+        <View style={styles.header}>
+          <View style={styles.titleRow}>
+            <Text style={styles.mainEmoji}>✨</Text>
+            <Text style={styles.title}>あなたの性格分析</Text>
+            <Text style={styles.mainEmoji}>✨</Text>
+          </View>
+          <View style={styles.rarityBadge}>
+            <LinearGradient
+              colors={['#FF6B9D', '#C06C84']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.rarityGradient}
+            >
+              <Text style={styles.rarityText}>
+                希少度 {rarity.toFixed(1)}%
+              </Text>
+            </LinearGradient>
+          </View>
+        </View>
 
-      {/* 三角錐チャート */}
-      <View style={styles.chartContainer}>
-        <View style={styles.pyramidsContainer}>
-          {chartData.map((item, index) => renderPyramidItem(item, index))}
+        {/* チャート部分 */}
+        <View style={styles.chartWrapper}>
+          <View style={styles.chartContainer}>
+            <View style={styles.pyramidsContainer}>
+              {chartData.map((item, index) => renderPyramidItem(item, index))}
+            </View>
+          </View>
+          
+          {/* チャート装飾 */}
+          <View style={styles.chartDecoration}>
+            <View style={styles.baseLineDecoration} />
+          </View>
+        </View>
+
+        {/* サマリーテキスト */}
+        <View style={styles.summarySection}>
+          <Text style={styles.summaryTitle}>総合評価</Text>
+          <Text style={styles.summaryText}>
+            バランスの取れた魅力的な性格の持ち主です
+          </Text>
         </View>
       </View>
 
-      {/* 特徴タグ */}
-      {renderCharacteristicTags()}
-      
-      {/* 3Dエフェクトライン */}
-      <View style={styles.decorativeLines}>
-        {chartData.map((item, index) => (
-          <View
-            key={index}
-            style={[
-              styles.decorativeLine,
-              {
-                backgroundColor: item.color,
-                opacity: 0.3,
-                left: `${15 + index * 20}%`,
-                height: 2,
-              }
-            ]}
-          />
-        ))}
+      {/* 特徴タグカード */}
+      <View style={styles.characteristicsCard}>
+        {renderCharacteristicTags()}
       </View>
     </View>
   );
@@ -237,141 +267,200 @@ const PersonalityChart: React.FC<PersonalityChartProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 20,
-    marginHorizontal: 20,
+    flex: 1,
+  },
+  mainCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    paddingTop: 24,
+    paddingBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 12,
   },
   header: {
-    marginBottom: 25,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  mainEmoji: {
+    fontSize: 20,
+    marginHorizontal: 8,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2C2C2C',
+    letterSpacing: 0.5,
   },
-  rarityContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
-    marginBottom: 8,
+  rarityBadge: {
+    marginTop: 8,
   },
-  rarityPrefix: {
+  rarityGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  rarityText: {
+    color: '#FFFFFF',
     fontSize: 14,
-    color: '#666',
+    fontWeight: '600',
   },
-  rarityValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FF6B9D',
-  },
-  raritySuffix: {
-    fontSize: 14,
-    color: '#666',
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
+  chartWrapper: {
+    backgroundColor: '#FAFAFA',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+    marginBottom: 20,
   },
   chartContainer: {
     alignItems: 'center',
-    marginBottom: 20,
   },
   pyramidsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     width: '100%',
-    height: 160,
-    paddingHorizontal: 10,
+    height: 140,
+    paddingHorizontal: 20,
   },
   pyramidItem: {
     alignItems: 'center',
     flex: 1,
-    marginHorizontal: 5,
   },
-  pyramid: {
-    width: 45,
-    borderRadius: 22.5,
-    justifyContent: 'flex-end',
+  barContainer: {
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'flex-end',
+    height: 120,
     position: 'relative',
-    paddingBottom: 8,
   },
-  pyramidInner: {
-    position: 'absolute',
-    top: '20%',
-    left: '20%',
-    right: '20%',
-    bottom: '20%',
-    borderRadius: 15,
-    opacity: 0.6,
+  barBackground: {
+    width: 32,
+    borderRadius: 16,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  pyramidIconContainer: {
-    position: 'absolute',
-    top: 8,
-    alignSelf: 'center',
+  barGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  pyramidIcon: {
+  barValue: {
     fontSize: 16,
-    color: 'white',
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  pyramidValue: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
+  barShadow: {
+    position: 'absolute',
+    bottom: -8,
+    width: 28,
+    borderRadius: 14,
+    transform: [{ scaleX: 1.5 }],
   },
   pyramidLabel: {
-    fontSize: 12,
-    color: '#333',
+    fontSize: 13,
+    color: '#666',
     fontWeight: '600',
-    textAlign: 'center',
+    marginTop: 12,
+    letterSpacing: 0.3,
   },
-  characteristicTags: {
+  chartDecoration: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  baseLineDecoration: {
+    height: 2,
+    width: '80%',
+    backgroundColor: '#E8E8E8',
+    borderRadius: 1,
+  },
+  summarySection: {
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  summaryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  characteristicsCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    marginHorizontal: 16,
+    marginTop: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  characteristicSection: {
+    alignItems: 'center',
+  },
+  characteristicTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+  },
+  characteristicGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginTop: 15,
+    marginHorizontal: -6,
   },
-  tag: {
+  tagCard: {
+    width: '30%',
+    alignItems: 'center',
+    marginHorizontal: '1.5%',
+    marginBottom: 16,
+  },
+  tagEmoji: {
+    fontSize: 28,
+    marginBottom: 8,
+  },
+  tagPill: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 15,
-    margin: 4,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
   },
   tagText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    color: 'white',
-  },
-  decorativeLines: {
-    position: 'absolute',
-    bottom: 80,
-    left: 0,
-    right: 0,
-    height: 20,
-  },
-  decorativeLine: {
-    position: 'absolute',
-    width: '15%',
-    borderRadius: 1,
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
 });
 

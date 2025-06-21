@@ -15,19 +15,24 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ZodiacCalculator, HoroscopeResult } from '../../../utils/ZodiacCalculator';
-import PersonalityChart from '../../../components/PersonalityChart';
+import PersonalityChartPyramid from '../../../components/PersonalityChartPyramid';
+import { TEXT_STYLES, getFontFamily } from '../../../styles/fonts';
 
 const { width, height } = Dimensions.get('window');
 
 interface RouteParams {
   userInfo?: {
+    name: string;
     birthDate: Date;
     birthPlace: string;
     selectedGender: 'male' | 'female';
   };
 }
 type RootStackParamList = {
-  HoroscopeDetail: { horoscopeData: HoroscopeResult };
+  HoroscopeDetail: { 
+    horoscopeData: HoroscopeResult; 
+    userName?: string;
+  };
   // 他の画面があればここに追加
 };
 
@@ -75,7 +80,7 @@ const HoroscopeScreen: React.FC = () => {
     if (!horoscopeData) return null;
 
     return (
-      <PersonalityChart 
+      <PersonalityChartPyramid 
         dimensions={horoscopeData.dimensions}
         rarity={horoscopeData.personality.rarity}
         animated={true}
@@ -212,7 +217,10 @@ const HoroscopeScreen: React.FC = () => {
         
                     <TouchableOpacity 
               style={styles.dailyButton}
-              onPress={() => navigation.navigate('HoroscopeDetail', { horoscopeData })}
+              onPress={() => navigation.navigate('HoroscopeDetail', { 
+                horoscopeData,
+                userName: userInfo?.name 
+              })}
             >
           <LinearGradient
             colors={['#4ECDC4', '#44A08D']}
@@ -366,8 +374,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...TEXT_STYLES.h4,
     color: 'white',
   },
   menuButton: {
@@ -382,17 +389,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    ...TEXT_STYLES.h1,
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitleText: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    ...TEXT_STYLES.body1,
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
-    lineHeight: 22,
+    fontWeight: '500',
   },
   chartSection: {
     marginTop: 20,
@@ -459,30 +468,31 @@ const styles = StyleSheet.create({
   },
   traitCard: {
     width: (width - 60) / 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 15,
-    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 18,
+    padding: 16,
     marginBottom: 15,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   traitEmoji: {
     fontSize: 24,
     marginBottom: 8,
   },
   traitTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.label,
     color: '#333',
     marginBottom: 4,
     textAlign: 'center',
   },
   traitSubtitle: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -493,20 +503,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    ...TEXT_STYLES.h3,
+    color: '#FFFFFF',
     marginBottom: 15,
+    textShadowColor: 'rgba(0, 0, 0, 0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   analysisCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 24,
+    padding: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   analysisRow: {
     flexDirection: 'row',
@@ -533,17 +547,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   analysisLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.label,
     color: '#333',
     marginBottom: 5,
     textAlign: 'center',
   },
   analysisText: {
+    ...TEXT_STYLES.body2,
     fontSize: 13,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 18,
   },
   adviceSection: {
     marginTop: 20,
@@ -558,18 +571,25 @@ const styles = StyleSheet.create({
   },
   adviceItem: {
     flex: 0.48,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 15,
-    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 18,
+    padding: 18,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   adviceLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.label,
     color: '#333',
     marginBottom: 8,
   },
   adviceText: {
+    ...TEXT_STYLES.body2,
     fontSize: 13,
     color: '#666',
     textAlign: 'center',
@@ -582,6 +602,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   foodText: {
+    ...TEXT_STYLES.body2,
     fontSize: 13,
     color: '#666',
   },
@@ -595,8 +616,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...TEXT_STYLES.button,
     color: 'white',
   },
   bottomSpacer: {

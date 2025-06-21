@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   helpText: {
-    fontSize: 14,
+    ...TEXT_STYLES.body2,
     color: '#999',
   },
   content: {
@@ -366,8 +367,7 @@ const styles = StyleSheet.create({
     fontSize: 60,
   },
   welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h2,
     color: '#333',
   },
   phoneSection: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
   },
   countryCodeText: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#333',
     marginRight: 5,
   },
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 15,
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#333',
   },
   verificationButton: {
@@ -414,9 +414,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4ECDC4',
   },
   verificationButtonText: {
-    fontSize: 16,
+    ...TEXT_STYLES.button,
     color: '#999',
-    fontWeight: '600',
   },
   verificationButtonTextActive: {
     color: 'white',
@@ -425,7 +424,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   passwordLoginText: {
-    fontSize: 14,
+    ...TEXT_STYLES.body2,
     color: '#999',
   },
   agreementSection: {
@@ -452,7 +451,7 @@ const styles = StyleSheet.create({
     borderColor: '#4ECDC4',
   },
   agreementText: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     color: '#666',
     flex: 1,
   },
@@ -462,11 +461,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   agreementLink: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     color: '#4ECDC4',
   },
   agreementAnd: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     color: '#666',
   },
   otherLoginSection: {
@@ -475,7 +474,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   otherLoginTitle: {
-    fontSize: 14,
+    ...TEXT_STYLES.body2,
     color: '#999',
     marginBottom: 20,
   },
@@ -505,9 +504,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   guestButtonText: {
+    ...TEXT_STYLES.label,
     color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
   },
   // 模态框样式
   modalContainer: {
@@ -525,12 +523,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5E5',
   },
   modalCancelText: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#4ECDC4',
   },
   modalTitle: {
+    ...TEXT_STYLES.h4,
     fontSize: 16,
-    fontWeight: '600',
     color: '#333',
   },
   modalPlaceholder: {
@@ -552,11 +550,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F8FF',
   },
   countryName: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#333',
   },
   countryCode: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#666',
   },
   // 协议模态框样式

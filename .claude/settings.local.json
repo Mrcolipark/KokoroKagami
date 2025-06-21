@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(npx expo install:*)",
+      "Bash(mkdir:*)",
+      "Bash(rg:*)",
+      "WebFetch(domain:docs.anthropic.com)"
+    ],
+    "deny": []
+  }
+}

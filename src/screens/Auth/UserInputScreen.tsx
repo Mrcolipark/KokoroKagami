@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { addressData } from '../../assets/addressData';
+import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
 
 const { width, height } = Dimensions.get('window');
 
@@ -716,22 +717,19 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h1,
     color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
     marginBottom: 12,
-    lineHeight: 36,
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   subtitle: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     marginBottom: 20,
-    lineHeight: 20,
   },
   mascotContainer: {
     marginTop: 20,
@@ -777,8 +775,8 @@ const styles = StyleSheet.create({
     borderColor: '#FF69B4',
   },
   genderText: {
+    ...TEXT_STYLES.h4,
     fontSize: 16,
-    fontWeight: '600',
     color: '#666',
     marginLeft: 8,
   },
@@ -789,8 +787,8 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   inputLabel: {
+    ...TEXT_STYLES.h4,
     fontSize: 16,
-    fontWeight: '600',
     color: '#333',
     marginBottom: 12,
   },
@@ -806,7 +804,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
   },
   inputText: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#333',
     flex: 1,
   },

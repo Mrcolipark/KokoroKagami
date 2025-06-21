@@ -1,7 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useFonts } from './hooks/useFonts';
+import { TEXT_STYLES, getFontFamily } from './styles/fonts';
+import { validateFontRendering } from './utils/fontValidator';
 
 // 认证相关页面 - 实际存在的组件
 import WelcomeScreen from './screens/Auth/WelcomeScreen';
@@ -41,13 +44,12 @@ const placeholderStyles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h2,
     color: '#333',
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#666',
     marginBottom: 30,
   },
@@ -58,9 +60,8 @@ const placeholderStyles = StyleSheet.create({
     borderRadius: 25,
   },
   buttonText: {
+    ...TEXT_STYLES.button,
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 
@@ -142,8 +143,45 @@ export type RootStackParamList = {
   SeasonalTheme: undefined;
 };
 
+// 字体加载组件
+const FontLoadingScreen = () => (
+  <View style={fontLoadingStyles.container}>
+    <ActivityIndicator size="large" color="#667eea" />
+    <Text style={fontLoadingStyles.text}>フォントを読み込み中...</Text>
+  </View>
+);
+
+const fontLoadingStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F3FF',
+  },
+  text: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+});
+
 // 主应用组件
 function App() {
+  const { fontsLoaded, fontError } = useFonts();
+
+  // 字体加载中显示loading
+  if (!fontsLoaded) {
+    return <FontLoadingScreen />;
+  }
+
+  // 字体加载错误时的提示（可选）
+  if (fontError) {
+    console.warn('Font loading failed, using system fonts:', fontError);
+  } else {
+    // 字体加载成功，进行验证
+    validateFontRendering();
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator 

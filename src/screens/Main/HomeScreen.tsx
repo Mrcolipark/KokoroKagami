@@ -13,6 +13,8 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
 // import type { RootStackParamList } from '../../App';
 
 // 临时类型定义，直到您更新navigation.ts
@@ -55,7 +57,7 @@ interface MoodStats {
   love: number;
   wealth: number;
   career: number;
-  study: number;
+  interpersonal: number;
 }
 
 // TODO: 这些数据将来要通过算法计算
@@ -81,7 +83,7 @@ const HomeScreen: React.FC = () => {
       love: 54,
       wealth: 76,
       career: 81,
-      study: 73,
+      interpersonal: 73,
     },
     dailyMessage: '今日のあなたは特別な輝きを放って、新しい出会いが期待できそう...',
     username: userInfo?.name || 'ゲスト' // 使用用户输入的姓名
@@ -90,6 +92,25 @@ const HomeScreen: React.FC = () => {
   // TODO: 算法计算函数 - 将来要替换为真实的API调用
   const calculateMoodData = async (userInfo: any) => {
     console.log('TODO: 调用算法API计算心情数据', userInfo);
+  };
+
+  // 时间问候语逻辑
+  const getTimeBasedGreeting = () => {
+    const currentHour = new Date().getHours();
+    const userName = userInfo?.name || 'ゲスト';
+    const gender = userInfo?.gender || 'female';
+    const honorific = gender === 'female' ? 'ちゃん' : 'さん';
+    
+    let greeting = '';
+    if (currentHour >= 5 && currentHour < 12) {
+      greeting = 'おはよう';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greeting = 'こんにちは';
+    } else {
+      greeting = 'こんばんは';
+    }
+    
+    return `${greeting}、${userName}${honorific}`;
   };
 
   useEffect(() => {
@@ -141,39 +162,44 @@ const handleFeaturePress = (feature: string) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F3FF" />
-      
-      {/* 顶部搜索栏 */}
-      <View style={styles.searchHeader}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="運勢を調べる エネルギー取得所"
-            placeholderTextColor="#999"
-          />
+    <LinearGradient
+      colors={['#E6E9FF', '#F0E6FF', '#FFE6F1']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.gradientContainer}
+    >
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        
+        {/* 顶部搜索栏 */}
+        <View style={styles.searchHeader}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="運勢・相性を占う"
+              placeholderTextColor="#999"
+            />
+          </View>
+          <TouchableOpacity style={styles.notificationIcon}>
+            <Ionicons name="notifications-outline" size={24} color="#666" />
+            <View style={styles.notificationDot} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.notificationIcon}>
-          <Ionicons name="notifications-outline" size={24} color="#333" />
-          <View style={styles.notificationDot} />
-        </TouchableOpacity>
-      </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* 主卡片区域 */}
         <View style={styles.mainCard}>
           {/* 用户问候 */}
-          <Text style={styles.greeting}>おはよう、{algorithmData.username}ちゃん</Text>
-          <Text style={styles.subtitle}>今日も素敵な一日を過ごしましょう</Text>
+          <Text style={styles.greeting}>{getTimeBasedGreeting()}</Text>
+          <Text style={styles.subtitle}>今日のあなたの運勢をチェックしましょう</Text>
           
           {/* 今日の運勢 */}
           <View style={styles.moodSection}>
-            <Text style={styles.moodTitle}>今日の運勢</Text>
+            <Text style={styles.moodTitle}>総合運</Text>
             <View style={styles.moodDisplay}>
               <View style={styles.moodCircle}>
                 <Text style={styles.moodNumber}>{algorithmData.todayMood}</Text>
-                <Text style={styles.moodUnit}>%</Text>
               </View>
               <View style={styles.moodContent}>
                 <Text style={styles.moodMessage}>{algorithmData.dailyMessage}</Text>
@@ -185,35 +211,35 @@ const handleFeaturePress = (feature: string) => {
           <View style={styles.statsContainer}>
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
-                <View style={[styles.statBar, { backgroundColor: '#FFB6C1' }]}>
-                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.love}%`, backgroundColor: '#FFB6C1' }]} />
+                <View style={[styles.statBar, { backgroundColor: 'rgba(255, 182, 193, 0.3)' }]}>
+                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.love}%`, backgroundColor: '#FF8FAF' }]} />
                 </View>
                 <Text style={styles.statValue}>{algorithmData.moodStats.love}</Text>
                 <Text style={styles.statLabel}>恋愛</Text>
               </View>
               
               <View style={styles.statItem}>
-                <View style={[styles.statBar, { backgroundColor: '#FFB347' }]}>
-                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.wealth}%`, backgroundColor: '#FFB347' }]} />
+                <View style={[styles.statBar, { backgroundColor: 'rgba(255, 184, 90, 0.3)' }]}>
+                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.wealth}%`, backgroundColor: '#FFB85A' }]} />
                 </View>
                 <Text style={styles.statValue}>{algorithmData.moodStats.wealth}</Text>
                 <Text style={styles.statLabel}>金運</Text>
               </View>
               
               <View style={styles.statItem}>
-                <View style={[styles.statBar, { backgroundColor: '#87CEEB' }]}>
-                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.career}%`, backgroundColor: '#87CEEB' }]} />
+                <View style={[styles.statBar, { backgroundColor: 'rgba(111, 199, 232, 0.3)' }]}>
+                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.career}%`, backgroundColor: '#6FC7E8' }]} />
                 </View>
                 <Text style={styles.statValue}>{algorithmData.moodStats.career}</Text>
                 <Text style={styles.statLabel}>仕事</Text>
               </View>
               
               <View style={styles.statItem}>
-                <View style={[styles.statBar, { backgroundColor: '#98D8C8' }]}>
-                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.study}%`, backgroundColor: '#98D8C8' }]} />
+                <View style={[styles.statBar, { backgroundColor: 'rgba(129, 199, 132, 0.3)' }]}>
+                  <View style={[styles.statFill, { height: `${algorithmData.moodStats.interpersonal}%`, backgroundColor: '#81C784' }]} />
                 </View>
-                <Text style={styles.statValue}>{algorithmData.moodStats.study}</Text>
-                <Text style={styles.statLabel}>学習</Text>
+                <Text style={styles.statValue}>{algorithmData.moodStats.interpersonal}</Text>
+                <Text style={styles.statLabel}>人間関係</Text>
               </View>
             </View>
           </View>
@@ -225,51 +251,56 @@ const handleFeaturePress = (feature: string) => {
             <TouchableOpacity 
               style={styles.featureItem}
               onPress={() => handleFeaturePress('horoscope')}
+              activeOpacity={0.7}
             >
               <View style={[styles.featureIcon, { backgroundColor: '#2196F3' }]}>
                 <Ionicons name="star" size={24} color="white" />
               </View>
-              <Text style={styles.featureLabel}>星座占い</Text>
+              <Text style={styles.featureLabel}>星座運勢</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.featureItem}
               onPress={() => handleFeaturePress('astrology')}
+              activeOpacity={0.7}
             >
               <View style={[styles.featureIcon, { backgroundColor: '#00BCD4' }]}>
                 <MaterialCommunityIcons name="star-circle" size={24} color="white" />
               </View>
-              <Text style={styles.featureLabel}>星盤占い</Text>
+              <Text style={styles.featureLabel}>ホロスコープ</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.featureItem}
               onPress={() => handleFeaturePress('stems')}
+              activeOpacity={0.7}
             >
-              <View style={[styles.featureIcon, { backgroundColor: '#FF9800' }]}>
-                <MaterialCommunityIcons name="yin-yang" size={24} color="white" />
+              <View style={[styles.featureIcon, { backgroundColor: '#FFD93D' }]}>
+                <MaterialCommunityIcons name="yin-yang" size={28} color="white" />
               </View>
-              <Text style={styles.featureLabel}>八字占い</Text>
+              <Text style={styles.featureLabel}>四柱推命</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.featureItem}
               onPress={() => handleFeaturePress('tarot')}
+              activeOpacity={0.7}
             >
               <View style={[styles.featureIcon, { backgroundColor: '#9C27B0' }]}>
                 <MaterialCommunityIcons name="cards" size={24} color="white" />
               </View>
-              <Text style={styles.featureLabel}>タロット</Text>
+              <Text style={styles.featureLabel}>タロット占い</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.featureItem}
               onPress={() => handleFeaturePress('compatibility')}
+              activeOpacity={0.7}
             >
-              <View style={[styles.featureIcon, { backgroundColor: '#E91E63' }]}>
-                <Ionicons name="heart" size={24} color="white" />
+              <View style={[styles.featureIcon, { backgroundColor: '#FFA07A' }]}>
+                <Ionicons name="heart" size={28} color="white" />
               </View>
-              <Text style={styles.featureLabel}>相性診断</Text>
+              <Text style={styles.featureLabel}>恋愛相性</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -278,7 +309,7 @@ const handleFeaturePress = (feature: string) => {
         <View style={styles.chatSection}>
           <Text style={styles.chatTitle}>AI相談員とチャット</Text>
           
-          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '1', chatName: '星座の先生・みらい' })}>
+          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '1', chatName: '星座の先生・みらい' })} activeOpacity={0.8}>
             <View style={[styles.chatAvatar, { backgroundColor: '#2196F3' }]}>
               <Text style={styles.chatAvatarText}>み</Text>
             </View>
@@ -299,7 +330,7 @@ const handleFeaturePress = (feature: string) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '2', chatName: 'タロットマスター・れいか' })}>
+          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '2', chatName: 'タロットマスター・れいか' })} activeOpacity={0.8}>
             <View style={[styles.chatAvatar, { backgroundColor: '#9C27B0' }]}>
               <Text style={styles.chatAvatarText}>れ</Text>
             </View>
@@ -312,7 +343,7 @@ const handleFeaturePress = (feature: string) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '3', chatName: '運命鑑定士・さとし' })}>
+          <TouchableOpacity style={styles.chatItem} onPress={() => navigation.navigate('ChatDetail', { chatId: '3', chatName: '運命鑑定士・さとし' })} activeOpacity={0.8}>
             <View style={[styles.chatAvatar, { backgroundColor: '#FF9800' }]}>
               <Text style={styles.chatAvatarText}>さ</Text>
             </View>
@@ -356,36 +387,42 @@ const handleFeaturePress = (feature: string) => {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#F5F3FF',
+    backgroundColor: 'transparent',
   },
   searchHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#F5F3FF',
+    backgroundColor: 'transparent',
+    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 12 : 12,
   },
   searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 25,
     paddingHorizontal: 16,
     height: 44,
+    backdropFilter: 'blur(10px)',
   },
   searchIcon: {
     marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    ...TEXT_STYLES.body2,
     color: '#333',
   },
   notificationIcon: {
@@ -405,34 +442,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mainCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 16,
-    padding: 20,
+    marginVertical: 8,
+    borderRadius: 28,
+    padding: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 25,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h2,
     color: '#333',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
+    ...TEXT_STYLES.body2,
+    color: '#4A5568',
     marginBottom: 20,
   },
   moodSection: {
     marginBottom: 20,
   },
   moodTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h4,
     color: '#333',
     marginBottom: 12,
   },
@@ -450,8 +487,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   moodNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h2,
     color: 'white',
   },
   moodUnit: {
@@ -462,9 +498,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   moodMessage: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+    ...TEXT_STYLES.body2,
+    color: '#2D3748',
   },
   statsContainer: {
     paddingTop: 20,
@@ -491,18 +526,19 @@ const styles = StyleSheet.create({
     minHeight: 4,
   },
   statValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.body1,
+    fontWeight: '700',
     color: '#333',
     marginBottom: 2,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#666',
+    ...TEXT_STYLES.caption,
+    color: '#4A5568',
+    fontWeight: '500',
   },
   featureGrid: {
     paddingHorizontal: 16,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   gridRow: {
     flexDirection: 'row',
@@ -512,38 +548,50 @@ const styles = StyleSheet.create({
   featureItem: {
     alignItems: 'center',
     width: (width - 32 - 64) / 5,
+    paddingVertical: 8,
   },
   featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
   featureLabel: {
-    fontSize: 11,
-    color: '#333',
+    ...TEXT_STYLES.caption,
+    color: '#2D3748',
     textAlign: 'center',
-    lineHeight: 14,
+    fontWeight: '600',
   },
   chatSection: {
     paddingHorizontal: 16,
-    marginBottom: 20,
+    marginBottom: 100,
   },
   chatTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h4,
     color: '#333',
     marginBottom: 16,
   },
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   chatAvatar: {
     width: 40,
@@ -567,8 +615,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   chatName: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.label,
     color: '#333',
     marginRight: 8,
   },
@@ -585,15 +632,16 @@ const styles = StyleSheet.create({
   },
   updateText: {
     fontSize: 10,
+    fontFamily: getFontFamily('medium'),
     color: '#FF69B4',
   },
   chatMessage: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     color: '#666',
-    lineHeight: 16,
   },
   chatTime: {
     fontSize: 10,
+    fontFamily: getFontFamily('regular'),
     color: '#999',
     marginLeft: 'auto',
   },
@@ -608,14 +656,19 @@ const styles = StyleSheet.create({
   badgeCount: {
     color: 'white',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: getFontFamily('bold'),
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
+    borderTopColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
   },
   navItem: {
     flex: 1,
@@ -638,6 +691,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     fontSize: 10,
+    fontFamily: getFontFamily('medium'),
     color: '#999',
     marginTop: 4,
   },

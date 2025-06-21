@@ -14,11 +14,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { HoroscopeResult, ZodiacSign } from '../../../utils/ZodiacCalculator';
+import PersonalityChartPyramid from '../../../components/PersonalityChartPyramid';
+import { TEXT_STYLES, getFontFamily } from '../../../styles/fonts';
 
 const { width, height } = Dimensions.get('window');
 
 interface RouteParams {
   horoscopeData: HoroscopeResult;
+  userName?: string;
 }
 
 // 詳細な星座解読データ
@@ -33,7 +36,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 あなたの太陽が牡羊座にあることは、あなたが勇敢で明朗な人生観を持っていることを表しています。煩わしい現実に束縛されることを拒み、より高く遠いものを目指しています。
 
 あなたは始終未来を展望し、目前の困難に打ち倒されることはありません。相...全文`,
-        discussion: '7877測友正在討論'
       },
       taurus: {
         title: '穏やか実用',
@@ -43,7 +45,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 美しいものや快適さに対する鋭い感覚を持ち、芸術やグルメ、自然との触れ合いを通じて心の満足を得ます。一度決めたことは最後まで貫く強い意志力があります。
 
 変化よりも安定を好み、信頼できる基盤の上で確実に成長していくことを目指します。...全文`,
-        discussion: '6543測友正在討論'
       },
       sagittarius: {
         title: '自由奔放',
@@ -53,7 +54,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 知識欲が旺盛で、学ぶことや教えることに喜びを感じます。哲学的な思考を好み、人生の意味について深く考える傾向があります。
 
 束縛を嫌い、自分らしく生きることを何より大切にします。正直で率直な性格は、周りの人々に信頼感を与えます。...全文`,
-        discussion: '8932測友正在討論'
       }
     },
     moon: {
@@ -65,7 +65,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 あなたは非常に強い感情的駆動力を持ち、人生を危険な冒険旅行のように捉えがちです。新しい観念を容易に受け入れ、経験を実現自己の手段とします。
 
 あなたは非常に独立自我で、心如赤子のように、積極進取で、素直で率直です。感情表現において直接的で、愛憎が分明です。...全文`,
-        discussion: '7342測友正在討論'
       },
       cancer: {
         title: '豊かな感受性',
@@ -75,7 +74,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 感情の変化が激しく、月の満ち欠けのように気分が変わることがあります。記憶力が良く、過去の出来事や感情を大切に保管しています。
 
 安全で安心できる環境を求め、心の支えとなる人や場所を必要とします。直感力に優れ、相手の気持ちを敏感に察知することができます。...全文`,
-        discussion: '6789測友正在討論'
       }
     },
     rising: {
@@ -89,7 +87,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 美的センスが良く、上品で洗練された雰囲気を醸し出します。実用的で現実的なアプローチを取ることが多く、周りからは頼りになる人として見られます。
 
 ゆっくりとしたペースを好み、急かされることを嫌います。自然体でいることを大切にし、無理をしない生き方を選択します。...全文`,
-        discussion: '5467測友正在討論'
       }
     }
   };
@@ -98,28 +95,25 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
 
   // Type guards for each type
   if (type === 'sun') {
-    const sunDescriptions = descriptions.sun as Record<string, { title: string; subtitle: string; content: string; discussion: string }>;
+    const sunDescriptions = descriptions.sun as Record<string, { title: string; subtitle: string; content: string }>;
     return sunDescriptions[signKey] || {
       title: '神秘的魅力',
       subtitle: `太陽${sign.name}`,
       content: `${sign.name}の特質について詳しい解説をご覧ください...`,
-      discussion: '1234測友正在討論'
     };
   } else if (type === 'moon') {
-    const moonDescriptions = descriptions.moon as Record<string, { title: string; subtitle: string; content: string; discussion: string }>;
+    const moonDescriptions = descriptions.moon as Record<string, { title: string; subtitle: string; content: string }>;
     return moonDescriptions[signKey] || {
       title: '神秘的魅力',
       subtitle: `月${sign.name}`,
       content: `${sign.name}の特質について詳しい解説をご覧ください...`,
-      discussion: '1234測友正在討論'
     };
   } else if (type === 'rising') {
-    const risingDescriptions = descriptions.rising as Record<string, { title: string; subtitle: string; content: string; discussion: string }>;
+    const risingDescriptions = descriptions.rising as Record<string, { title: string; subtitle: string; content: string }>;
     return risingDescriptions[signKey] || {
       title: '神秘的魅力',
       subtitle: `上昇${sign.name}`,
       content: `${sign.name}の特質について詳しい解説をご覧ください...`,
-      discussion: '1234測友正在討論'
     };
   }
   // fallback
@@ -127,7 +121,6 @@ const getDetailedDescription = (sign: ZodiacSign, type: 'sun' | 'moon' | 'rising
     title: '神秘的魅力',
     subtitle: `${sign.name}`,
     content: `${sign.name}の特質について詳しい解説をご覧ください...`,
-    discussion: '1234測友正在討論'
   };
 };
 
@@ -135,7 +128,7 @@ const HoroscopeDetailScreen: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const params = route.params as RouteParams;
-  const { horoscopeData } = params;
+  const { horoscopeData, userName } = params;
 
   const [selectedTab, setSelectedTab] = useState<'constellation' | 'houses'>('constellation');
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -155,7 +148,7 @@ const HoroscopeDetailScreen: React.FC = () => {
         onPress={() => setSelectedTab('constellation')}
       >
         <Text style={[styles.tabText, selectedTab === 'constellation' && styles.activeTabText]}>
-          星座
+          星座解読
         </Text>
       </TouchableOpacity>
       
@@ -164,7 +157,7 @@ const HoroscopeDetailScreen: React.FC = () => {
         onPress={() => setSelectedTab('houses')}
       >
         <Text style={[styles.tabText, selectedTab === 'houses' && styles.activeTabText]}>
-          宮位
+          ハウス解読
         </Text>
       </TouchableOpacity>
     </View>
@@ -191,10 +184,6 @@ const HoroscopeDetailScreen: React.FC = () => {
           
           <Text style={styles.signContent}>{sunDetails.content}</Text>
           
-          <TouchableOpacity style={styles.discussionButton}>
-            <Ionicons name="chatbubbles" size={16} color="#FF6B6B" />
-            <Text style={styles.discussionText}>{sunDetails.discussion} ›</Text>
-          </TouchableOpacity>
         </View>
 
         {/* 月星座 */}
@@ -211,10 +200,6 @@ const HoroscopeDetailScreen: React.FC = () => {
           
           <Text style={styles.signContent}>{moonDetails.content}</Text>
           
-          <TouchableOpacity style={styles.discussionButton}>
-            <Ionicons name="flame" size={16} color="#4ECDC4" />
-            <Text style={styles.discussionText}>{moonDetails.discussion} ›</Text>
-          </TouchableOpacity>
         </View>
 
         {/* 上昇星座 */}
@@ -231,10 +216,6 @@ const HoroscopeDetailScreen: React.FC = () => {
           
           <Text style={styles.signContent}>{risingDetails.content}</Text>
           
-          <TouchableOpacity style={styles.discussionButton}>
-            <Ionicons name="chatbubbles" size={16} color="#FFE66D" />
-            <Text style={styles.discussionText}>{risingDetails.discussion} ›</Text>
-          </TouchableOpacity>
         </View>
       </View>
     );
@@ -255,12 +236,12 @@ const HoroscopeDetailScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#E6E9FF', '#F0E6FF', '#FFE6F1']}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={styles.gradient}
       >
         {/* ヘッダー */}
@@ -269,13 +250,13 @@ const HoroscopeDetailScreen: React.FC = () => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={24} color="#333" />
           </TouchableOpacity>
           
-          <Text style={styles.headerTitle}>自分</Text>
+          <Text style={styles.headerTitle}>{userName || 'あなた'}</Text>
           
           <TouchableOpacity style={styles.shareButton}>
-            <Ionicons name="share-outline" size={24} color="white" />
+            <Ionicons name="share-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
 
@@ -327,9 +308,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'white',
+    ...TEXT_STYLES.h4,
+    color: '#333',
   },
   shareButton: {
     width: 40,
@@ -349,15 +329,15 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: 'white',
+    borderBottomColor: '#333',
   },
   tabText: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
+    ...TEXT_STYLES.body1,
+    color: '#4A5568',
     fontWeight: '500',
   },
   activeTabText: {
-    color: 'white',
+    color: '#333',
     fontWeight: '600',
   },
   content: {
@@ -373,15 +353,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   signDetailCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 24,
+    padding: 24,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   signHeader: {
     flexDirection: 'row',
@@ -403,56 +385,42 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   signTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h4,
     color: '#333',
     marginBottom: 4,
   },
   signSubtitle: {
-    fontSize: 14,
+    ...TEXT_STYLES.label,
     color: '#666',
-    fontWeight: '500',
   },
   signContent: {
-    fontSize: 14,
+    ...TEXT_STYLES.body2,
     color: '#333',
-    lineHeight: 22,
     marginBottom: 15,
   },
-  discussionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-  },
-  discussionText: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 5,
-    fontWeight: '500',
-  },
   comingSoonCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 24,
     padding: 40,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   comingSoonTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...TEXT_STYLES.h3,
     color: '#333',
     marginTop: 15,
     marginBottom: 10,
   },
   comingSoonText: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 24,
   },
   disclaimer: {
     flexDirection: 'row',
@@ -464,11 +432,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   disclaimerText: {
-    fontSize: 12,
+    ...TEXT_STYLES.caption,
     color: '#999',
     marginLeft: 8,
     flex: 1,
-    lineHeight: 18,
   },
 });
 

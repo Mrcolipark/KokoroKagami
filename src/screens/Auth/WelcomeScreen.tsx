@@ -7,6 +7,7 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
+import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
 
 const WelcomeScreen = ({ navigation }: any) => {
   const timerRef = useRef<any>(null);
@@ -83,7 +84,8 @@ const styles = StyleSheet.create({
   },
   mainSlogan: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: getFontFamily('bold'),
+    fontWeight: '700',
     color: '#333',
     textAlign: 'center',
     letterSpacing: 2,
@@ -91,10 +93,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   subSlogan: {
-    fontSize: 16,
+    ...TEXT_STYLES.body1,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 24,
     letterSpacing: 1,
   },
 });
