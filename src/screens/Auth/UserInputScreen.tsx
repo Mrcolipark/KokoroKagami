@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,29 +10,47 @@ import {
   ScrollView,
   Dimensions,
   TextInput,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { addressData } from '../../assets/addressData';
 import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
+import { LocationService, AddressResult } from '../../services/locationService';
+import { UserService } from '../../services/userService';
 
 const { width, height } = Dimensions.get('window');
 
+interface RouteParams {
+  existingUser?: any;
+  phoneNumber?: string;
+}
+
 export default function UserInputScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const params = route.params as RouteParams;
+  
+  // 如果是编辑模式，预填充用户数据
+  const existingUser = params?.existingUser;
+  const presetPhoneNumber = params?.phoneNumber || '';
   
   // 基本信息状态
-  const [name, setName] = useState<string>('');
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null);
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [birthTime, setBirthTime] = useState<Date | null>(null);
+  const [name, setName] = useState<string>(existingUser?.name || '');
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(existingUser?.gender || null);
+  const [birthDate, setBirthDate] = useState<Date | null>(existingUser?.birthDate || null);
+  const [birthTime, setBirthTime] = useState<Date | null>(existingUser?.birthTime || null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
-  const [birthPlace, setBirthPlace] = useState<string>('');
-  const [currentLocation, setCurrentLocation] = useState<string>('');
+  const [birthPlace, setBirthPlace] = useState<string>(
+    existingUser ? UserService.formatAddress(existingUser.birthPlace) : ''
+  );
+  const [currentLocation, setCurrentLocation] = useState<string>(
+    existingUser ? UserService.formatAddress(existingUser.currentLocation) : ''
+  );
   
   // 地址选择相关状态
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -40,6 +58,26 @@ export default function UserInputScreen() {
   const [selectedProvince, setSelectedProvince] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  
+  // GPS位置相关状态
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [birthPlaceResult, setBirthPlaceResult] = useState<AddressResult | null>(null);
+  const [currentLocationResult, setCurrentLocationResult] = useState<AddressResult | null>(null);
+  
+  // 地址搜索相关状态
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<AddressResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // 组件卸载时重置loading状态
+  useEffect(() => {
+    return () => {
+      // 组件卸载时重置状态，避免内存泄漏
+      setIsLoadingLocation(false);
+      setIsSearching(false);
+    };
+  }, []);
 
   // 日期选择处理
   const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -113,13 +151,113 @@ export default function UserInputScreen() {
     setShowLocationModal(true);
   };
 
-  // 地址选择完成
+  // 使用GPS获取当前位置 (使用useCallback优化)
+  const handleUseCurrentLocation = useCallback(async () => {
+    // 防止重复调用
+    if (isLoadingLocation) {
+      console.log('正在获取位置中，跳过重复请求');
+      return;
+    }
+
+    setIsLoadingLocation(true);
+    
+    try {
+      console.log('开始获取GPS位置...');
+      const address = await LocationService.getCurrentAddress();
+      
+      if (address) {
+        console.log('GPS位置获取成功:', address);
+        
+        // 使用setTimeout确保状态更新不冲突
+        setTimeout(() => {
+          if (locationTarget === 'birth') {
+            setBirthPlaceResult(address);
+            setBirthPlace(UserService.formatAddress(address));
+          } else {
+            setCurrentLocationResult(address);
+            setCurrentLocation(UserService.formatAddress(address));
+          }
+        }, 100);
+        
+        // 延迟关闭模态框，确保状态更新完成
+        setTimeout(() => {
+          setShowLocationModal(false);
+        }, 200);
+        
+      } else {
+        console.log('GPS位置获取失败');
+        Alert.alert(
+          '位置取得失敗',
+          '現在地の取得に失敗しました。手動で住所を選択してください。',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('GPS获取位置异常:', error);
+      Alert.alert(
+        '位置取得エラー',
+        'GPS機能が利用できません。設定でアプリの位置情報アクセスを確認してください。',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      // 确保loading状态被重置
+      setTimeout(() => {
+        setIsLoadingLocation(false);
+      }, 300);
+    }
+  }, [isLoadingLocation, locationTarget]);
+
+  // 智能地址搜索（支持地址和邮编）
+  const handleLocationSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await LocationService.smartSearch(query);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('地址搜索失败:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // 选择搜索结果
+  const handleSelectSearchResult = (address: AddressResult) => {
+    if (locationTarget === 'birth') {
+      setBirthPlaceResult(address);
+      setBirthPlace(UserService.formatAddress(address));
+    } else {
+      setCurrentLocationResult(address);
+      setCurrentLocation(UserService.formatAddress(address));
+    }
+    setShowLocationSearch(false);
+    setShowLocationModal(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  // 地址选择完成（手动选择）
   const handleLocationComplete = () => {
     if (selectedProvince && selectedCity && selectedDistrict) {
+      const addressResult: AddressResult = {
+        prefecture: selectedProvince,
+        city: selectedCity,
+        ward: selectedDistrict,
+        fullAddress: `${selectedProvince} ${selectedCity} ${selectedDistrict}`,
+      };
+      
       const fullAddress = `${selectedProvince}, ${selectedCity}, ${selectedDistrict}`;
       if (locationTarget === 'birth') {
+        setBirthPlaceResult(addressResult);
         setBirthPlace(fullAddress);
       } else {
+        setCurrentLocationResult(addressResult);
         setCurrentLocation(fullAddress);
       }
     }
@@ -149,23 +287,58 @@ export default function UserInputScreen() {
   };
 
   // 继续按钮处理
-  const handleContinue = () => {
-    if (selectedGender && birthDate && birthTime && birthPlace && currentLocation && name.trim()) {
-      const userInfo = {
-        name: name.trim(),
-        gender: selectedGender,
-        birthDate,
-        birthTime,
-        birthPlace,
-        currentLocation,
-      };
-      
-      console.log('Form data:', userInfo);
-      (navigation as any).navigate('Home', { userInfo });
+  const handleContinue = async () => {
+    if (selectedGender && birthDate && birthTime && (birthPlaceResult || birthPlace) && (currentLocationResult || currentLocation) && name.trim()) {
+      try {
+        // 确保使用AddressResult格式的地址数据
+        const finalBirthPlace = birthPlaceResult || {
+          prefecture: birthPlace.split(', ')[0] || '',
+          city: birthPlace.split(', ')[1] || '',
+          ward: birthPlace.split(', ')[2],
+          fullAddress: birthPlace,
+        };
+        
+        const finalCurrentLocation = currentLocationResult || {
+          prefecture: currentLocation.split(', ')[0] || '',
+          city: currentLocation.split(', ')[1] || '',
+          ward: currentLocation.split(', ')[2],
+          fullAddress: currentLocation,
+        };
+
+        // 创建或更新用户信息
+        const userInfo = existingUser ? {
+          ...existingUser,
+          name: name.trim(),
+          gender: selectedGender,
+          birthDate,
+          birthTime,
+          birthPlace: finalBirthPlace,
+          currentLocation: finalCurrentLocation,
+          updatedAt: new Date(),
+        } : UserService.createUserInfo({
+          phoneNumber: presetPhoneNumber,
+          name: name.trim(),
+          gender: selectedGender,
+          birthDate,
+          birthTime,
+          birthPlace: finalBirthPlace,
+          currentLocation: finalCurrentLocation,
+        });
+        
+        // 保存到AsyncStorage（包括用户列表）
+        await UserService.setCurrentUser(userInfo);
+        
+        console.log('✅ 用户信息已保存:', userInfo.name);
+        (navigation as any).navigate('Home', { userInfo });
+      } catch (error) {
+        console.error('❌ 保存用户信息失败:', error);
+        // 可以显示错误提示
+      }
     }
   };
 
-  const isFormValid = name.trim() && selectedGender && birthDate && birthTime && birthPlace && currentLocation;
+  const isFormValid = name.trim() && selectedGender && birthDate && birthTime && 
+    (birthPlace || birthPlaceResult) && (currentLocation || currentLocationResult);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -599,6 +772,54 @@ export default function UserInputScreen() {
             </Text>
           </View>
 
+          {/* GPS定位和搜索功能 */}
+          <View style={styles.quickActions}>
+            <TouchableOpacity
+              style={[
+                styles.quickActionButton, 
+                isLoadingLocation && styles.disabledButton
+              ]}
+              onPress={handleUseCurrentLocation}
+              disabled={isLoadingLocation}
+              activeOpacity={isLoadingLocation ? 1 : 0.7}
+            >
+              <Ionicons 
+                name={isLoadingLocation ? "sync" : "location"} 
+                size={24} 
+                color={isLoadingLocation ? "#999" : "#FF69B4"}
+                style={isLoadingLocation ? styles.spinningIcon : undefined}
+              />
+              <Text style={[
+                styles.quickActionText,
+                isLoadingLocation && styles.disabledText
+              ]}>
+                {isLoadingLocation ? 'GPS取得中...' : '📍現在地を使用'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.quickActionButton,
+                isLoadingLocation && styles.disabledButton
+              ]}
+              onPress={() => setShowLocationSearch(true)}
+              disabled={isLoadingLocation}
+              activeOpacity={isLoadingLocation ? 1 : 0.7}
+            >
+              <Ionicons 
+                name="search" 
+                size={24} 
+                color={isLoadingLocation ? "#999" : "#FF69B4"} 
+              />
+              <Text style={[
+                styles.quickActionText,
+                isLoadingLocation && styles.disabledText
+              ]}>
+                🔍住所・郵便番号
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* 地址选择器 */}
           <View style={styles.pickerContainer}>
             {/* 都道府県 */}
@@ -680,6 +901,86 @@ export default function UserInputScreen() {
               </ScrollView>
             </View>
           </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* 地址搜索模态框 */}
+      <Modal
+        visible={showLocationSearch}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity 
+              style={styles.modalCancelButton}
+              onPress={() => {
+                setShowLocationSearch(false);
+                setSearchQuery('');
+                setSearchResults([]);
+              }}
+            >
+              <Text style={styles.modalCancelText}>キャンセル</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalHeaderTitle}>住所を検索</Text>
+            <View style={{ width: 60 }} />
+          </View>
+
+          {/* 搜索输入框 */}
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputContainer}>
+              <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={handleLocationSearch}
+                placeholder="住所または郵便番号（例：150-0002、東京都渋谷区）"
+                placeholderTextColor="#999"
+                autoFocus
+                keyboardType="default"
+              />
+              {isSearching && (
+                <Ionicons name="sync" size={20} color="#FF69B4" style={styles.loadingIcon} />
+              )}
+            </View>
+          </View>
+
+          {/* 搜索结果 */}
+          <ScrollView style={styles.searchResults}>
+            {searchResults.length > 0 ? (
+              searchResults.map((result, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.searchResultItem}
+                  onPress={() => handleSelectSearchResult(result)}
+                >
+                  <View style={styles.searchResultContent}>
+                    <Text style={styles.searchResultTitle}>
+                      {result.prefecture} {result.city}
+                      {result.ward && ` ${result.ward}`}
+                    </Text>
+                    <Text style={styles.searchResultSubtitle}>
+                      {result.fullAddress}
+                    </Text>
+                    {result.postalCode && (
+                      <Text style={styles.searchResultPostalCode}>
+                        〒{result.postalCode.substring(0, 3)}-{result.postalCode.substring(3)}
+                      </Text>
+                    )}
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color="#999" />
+                </TouchableOpacity>
+              ))
+            ) : searchQuery.length >= 2 && !isSearching ? (
+              <View style={styles.noResultsContainer}>
+                <Ionicons name="search" size={48} color="#CCC" />
+                <Text style={styles.noResultsText}>検索結果が見つかりません</Text>
+                <Text style={styles.noResultsSubtext}>
+                  別のキーワードで検索してみてください
+                </Text>
+              </View>
+            ) : null}
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
@@ -1055,5 +1356,95 @@ const styles = StyleSheet.create({
   selectedPickerText: {
     color: '#FF69B4', // 粉色主题
     fontWeight: '600',
+  },
+  
+  // GPS和搜索相关样式
+  disabledButton: {
+    opacity: 0.5,
+    backgroundColor: '#F5F5F5',
+  },
+  disabledText: {
+    color: '#999',
+  },
+  spinningIcon: {
+    // 可以添加旋转动画，但为了简单先保持静态
+  },
+  
+  // 搜索模态框样式
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+  },
+  loadingIcon: {
+    marginLeft: 10,
+  },
+  searchResults: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  searchResultContent: {
+    flex: 1,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  searchResultSubtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  searchResultPostalCode: {
+    fontSize: 12,
+    color: '#FF69B4',
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  noResultsText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#999',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  noResultsSubtext: {
+    fontSize: 14,
+    color: '#BBB',
+    textAlign: 'center',
   },
 });

@@ -14,6 +14,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
+import { UserService } from '../../services/userService';
 
 const { width } = Dimensions.get('window');
 
@@ -35,7 +36,7 @@ export default function LoginScreen() {
     { code: '+44', country: 'イギリス' },
   ];
 
-  // TODO: 集成短信验证码API
+  // 登录/注册处理
   const handleGetVerificationCode = async () => {
     if (!phoneNumber.trim()) {
       Alert.alert('エラー', '電話番号を入力してください');
@@ -48,28 +49,66 @@ export default function LoginScreen() {
     }
 
     try {
-      // TODO: 调用后端API发送验证码
-      // const response = await fetch('/api/send-sms', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     phoneNumber: selectedCountryCode + phoneNumber,
-      //     countryCode: selectedCountryCode
-      //   })
-      // });
+      const fullPhoneNumber = selectedCountryCode + phoneNumber;
       
-      console.log('发送验证码到:', selectedCountryCode + phoneNumber);
-      Alert.alert('成功', '認証コードを送信しました');
+      // 检查是否为现有用户
+      const existingUser = await UserService.getUserByPhoneNumber(fullPhoneNumber);
       
-      // TODO: 导航到验证码输入页面，验证成功后跳转到用户信息收集
-      // navigation.navigate('VerificationCode', { 
-      //   phoneNumber: selectedCountryCode + phoneNumber 
-      // });
-      // 验证成功后应该导航到：
-      (navigation as any).navigate('UserInput');
+      if (existingUser) {
+        // 现有用户 - 直接登录
+        Alert.alert(
+          'おかえりなさい！', 
+          `${existingUser.name}さん、再びお会いできて嬉しいです。`,
+          [
+            {
+              text: 'ログイン',
+              onPress: async () => {
+                try {
+                  await UserService.setCurrentUser(existingUser);
+                  console.log('✅ 现有用户登录成功:', existingUser.name);
+                  (navigation as any).navigate('Home', { userInfo: existingUser });
+                } catch (error) {
+                  console.error('❌ 用户登录失败:', error);
+                  Alert.alert('エラー', 'ログインに失敗しました');
+                }
+              }
+            },
+            {
+              text: 'プロフィール編集',
+              onPress: () => {
+                // 允许用户编辑资料
+                (navigation as any).navigate('UserInput', { 
+                  existingUser,
+                  phoneNumber: fullPhoneNumber 
+                });
+              }
+            }
+          ]
+        );
+      } else {
+        // 新用户 - 注册流程
+        console.log('新用户注册，发送验证码到:', fullPhoneNumber);
+        
+        // TODO: 这里应该发送真实的短信验证码
+        Alert.alert(
+          '認証コード送信', 
+          '認証コードを送信しました（開発中のため省略）',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                (navigation as any).navigate('UserInput', { 
+                  phoneNumber: fullPhoneNumber 
+                });
+              }
+            }
+          ]
+        );
+      }
       
     } catch (error) {
-      console.error('发送验证码失败:', error);
-      Alert.alert('エラー', '認証コードの送信に失敗しました');
+      console.error('登录处理失败:', error);
+      Alert.alert('エラー', 'ログイン処理に失敗しました');
     }
   };
 

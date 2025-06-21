@@ -34,6 +34,7 @@ export class Storage {
 export const STORAGE_KEYS = {
   USER_TOKEN: 'userToken',
   USER_INFO: 'userInfo',
+  ALL_USERS: 'allUsers',
   HAS_LAUNCHED: 'hasLaunched',
   HAS_COMPLETED_SETUP: 'hasCompletedSetup',
 };

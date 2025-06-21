@@ -15,6 +15,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TEXT_STYLES, getFontFamily } from '../../styles/fonts';
+import { UserService, UserInfo } from '../../services/userService';
 // import type { RootStackParamList } from '../../App';
 
 // 临时类型定义，直到您更新navigation.ts
@@ -74,7 +75,30 @@ const HomeScreen: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const params = route.params as RouteParams;
-  const userInfo = params?.userInfo;
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  
+  // 从AsyncStorage加载用户信息
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const storedUserInfo = await UserService.getCurrentUserInfo();
+        if (storedUserInfo) {
+          setUserInfo(storedUserInfo);
+        } else if (params?.userInfo) {
+          // 如果AsyncStorage中没有数据，使用导航参数作为后备
+          setUserInfo(params.userInfo as any);
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+        // 使用导航参数作为后备
+        if (params?.userInfo) {
+          setUserInfo(params.userInfo as any);
+        }
+      }
+    };
+    
+    loadUserInfo();
+  }, [params?.userInfo]);
 
   // TODO: 将来这些数据要通过算法API获取
   const [algorithmData, setAlgorithmData] = useState<AlgorithmData>({
@@ -124,7 +148,7 @@ const handleFeaturePress = (feature: string) => {
   switch (feature) {
     case 'horoscope':
       // 直接传递用户信息到星座页面
-      navigation.navigate('HoroscopeHome', { userInfo });
+      navigation.navigate('HoroscopeHome', { userInfo: userInfo || undefined });
       break;
       case 'astrology':
         navigation.navigate('NatalChartInput');
@@ -415,7 +439,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 16,
     height: 44,
-    backdropFilter: 'blur(10px)',
   },
   searchIcon: {
     marginRight: 8,
